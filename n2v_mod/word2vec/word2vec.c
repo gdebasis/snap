@@ -581,9 +581,9 @@ void *TrainModelThread(void *id) {
         if (last_word == -1) continue;
 
 				// Take into account the constraints here...
-				if (one_minus_constraint_match_wt == 0)
+				if (one_minus_constraint_match_wt == 0 || vocab[word].constraint_index == 0)
 					beta = 1;
-				else if (vocab[word].constraint_index == vocab[last_word].constraint_index && vocab[word].constraint_index > 0)
+				else if (vocab[word].constraint_index == vocab[last_word].constraint_index)
 					beta = constraint_match_wt;
 				else
 					beta = one_minus_constraint_match_wt;
@@ -651,10 +651,11 @@ void *TrainModelThread(void *id) {
         l1 = last_word * layer1_size;
 
 				// Take into account the constraints here...
-				if (one_minus_constraint_match_wt == 0)
+				if (one_minus_constraint_match_wt == 0 || vocab[word].constraint_index == 0)
 					beta = 1;
-				else if (vocab[word].constraint_index == vocab[last_word].constraint_index && vocab[word].constraint_index > 0)
+				else if (vocab[word].constraint_index == vocab[last_word].constraint_index) {
 					beta = constraint_match_wt;
+				}
 				else
 					beta = one_minus_constraint_match_wt;
 
@@ -680,12 +681,14 @@ void *TrainModelThread(void *id) {
           if (d == 0) {
             target = word;
             label = 1;
-          } else {
+          }
+					else {
             next_random = next_random * (unsigned long long)25214903917 + 11;
             target = table[(next_random >> 16) % table_size];
             if (target == 0) target = next_random % (vocab_size - 1) + 1;
             if (target == word) continue;
             label = 0;
+						beta = 1;
           }
           l2 = target * layer1_size;
           f = 0;
