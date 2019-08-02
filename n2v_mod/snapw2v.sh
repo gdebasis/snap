@@ -8,6 +8,7 @@ fi
 
 WORD2VEC=word2vec/word2vec
 N2V=../examples/node2vec/node2vec
+BETA=1
 
 if [ $# -gt 4 ]
 then
@@ -15,6 +16,7 @@ then
 	#remove trailing spaces
 	cat $MODULARITY_FILE | sed 's/ $//g' > tmp
 	mv tmp $MODULARITY_FILE 
+	BETA=0.8
 fi
 
 GRAPH_FILE=$1
@@ -24,13 +26,13 @@ GT=$4
 
 GRAPH_RW=$GRAPH_FILE.rw
 
-#if [ ! -e $GRAPH_RW ]
-#then 
+if [ ! -e $GRAPH_RW ]
+then 
 
 #Generate the random walk with the SNAP executable
 $N2V -i:$GRAPH_FILE -o:$GRAPH_RW -v -ow
 
-#fi
+fi
 
 
 #### params ####
@@ -38,7 +40,6 @@ SIZE=128
 WINDOW=10
 NS=20
 ITERS=5
-BETA=0.6
 
 if [ $# -gt 4 ]
 then
@@ -51,5 +52,5 @@ CLUST_FILE=$OUTFILE.clust
 cat $CLUST_FILE | tail -n+2 | awk '{list[$2] = list[$2] " " $1} END{for (c in list) print list[c]}' > $CLUST_FILE.$BETA.gecmi
 
 GECMI=gecmi/bin/Release/gecmi
-$GECMI $GT $CLUST_FILE.gecmi
+$GECMI $GT $CLUST_FILE.$BETA.gecmi
 
